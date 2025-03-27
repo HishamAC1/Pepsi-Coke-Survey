@@ -5,11 +5,11 @@ public class Survey {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter the number of users: ");
-        int numberOfUsers = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
+        int numberOfUsers = getValidInt(scanner);
 
-        int[] cokeCounts = new int[numberOfUsers];
-        int[] pepsiCounts = new int[numberOfUsers];
+        int cokePreferenceCount = 0;
+        int pepsiPreferenceCount = 0;
+        int noPreferenceCount = 0;
 
         for (int i = 0; i < numberOfUsers; i++) {
             System.out.println("User " + (i + 1) + ": Please select your preference for each pair of products:");
@@ -22,26 +22,19 @@ public class Survey {
             cokeCount += getUserChoice(scanner, "Barq's Root Beer", "MUG Root Beer");
             cokeCount += getUserChoice(scanner, "Dasani", "Aquafina");
 
-            int pepsiCount = 6 - cokeCount; // Since there are 6 questions, the remaining choices are for Pepsi
-
-            cokeCounts[i] = cokeCount;
-            pepsiCounts[i] = pepsiCount;
-        }
-
-        System.out.println("Survey Results:");
-        for (int i = 0; i < numberOfUsers; i++) {
-            System.out.println("User " + (i + 1) + ":");
-            System.out.println("Coke products selected: " + cokeCounts[i]);
-            System.out.println("Pepsi products selected: " + pepsiCounts[i]);
-
-            if (cokeCounts[i] > pepsiCounts[i]) {
-                System.out.println("You prefer Coke products.");
-            } else if (pepsiCounts[i] > cokeCounts[i]) {
-                System.out.println("You prefer Pepsi products.");
+            if (cokeCount > 3) {
+                cokePreferenceCount++;
+            } else if (cokeCount < 3) {
+                pepsiPreferenceCount++;
             } else {
-                System.out.println("You have no clear preference between Coke and Pepsi products.");
+                noPreferenceCount++;
             }
         }
+
+        System.out.println("Overall Survey Results:");
+        System.out.println("Number of users who preferred Coke products: " + cokePreferenceCount);
+        System.out.println("Number of users who preferred Pepsi products: " + pepsiPreferenceCount);
+        System.out.println("Number of users with no clear preference: " + noPreferenceCount);
 
         scanner.close();
     }
@@ -50,11 +43,25 @@ public class Survey {
         System.out.println("1. " + option1);
         System.out.println("2. " + option2);
         System.out.print("Enter 1 or 2: ");
-        int choice = scanner.nextInt();
-        while (choice != 1 && choice != 2) {
-            System.out.print("Invalid choice. Please enter 1 or 2: ");
-            choice = scanner.nextInt();
+        return getValidInt(scanner, 1, 2) == 1 ? 1 : 0;
+    }
+
+    private static int getValidInt(Scanner scanner) {
+        while (!scanner.hasNextInt()) {
+            System.out.print("Invalid input. Please enter a valid number: ");
+            scanner.next();
         }
-        return choice == 1 ? 1 : 0;
+        return scanner.nextInt();
+    }
+
+    private static int getValidInt(Scanner scanner, int min, int max) {
+        int value;
+        do {
+            value = getValidInt(scanner);
+            if (value < min || value > max) {
+                System.out.print("Invalid choice. Please enter a number between " + min + " and " + max + ": ");
+            }
+        } while (value < min || value > max);
+        return value;
     }
 }
