@@ -1,9 +1,10 @@
-// src/Survey.java
+import java.io.*;
 import java.util.Scanner;
 
 public class Survey {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
+
         System.out.print("Enter the number of users: ");
         int numberOfUsers = getValidInt(scanner);
 
@@ -36,6 +37,11 @@ public class Survey {
         System.out.println("Number of users who preferred Pepsi products: " + pepsiPreferenceCount);
         System.out.println("Number of users with no clear preference: " + noPreferenceCount);
 
+        saveResultsToFile(cokePreferenceCount, pepsiPreferenceCount, noPreferenceCount);
+
+        // Load and display past results at the end
+        loadAndDisplayPastResults();
+
         scanner.close();
     }
 
@@ -63,5 +69,64 @@ public class Survey {
             }
         } while (value < min || value > max);
         return value;
+    }
+
+    private static void saveResultsToFile(int cokeCount, int pepsiCount, int noPreferenceCount) {
+        String fileName = "survey_results.csv";
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, true))) {
+            writer.write("Preference,Count");
+            writer.newLine();
+            writer.write("Coke," + cokeCount);
+            writer.newLine();
+            writer.write("Pepsi," + pepsiCount);
+            writer.newLine();
+            writer.write("No Preference," + noPreferenceCount);
+            writer.newLine();
+            System.out.println("Results saved to " + fileName);
+        } catch (IOException e) {
+            System.out.println("An error occurred while saving the results: " + e.getMessage());
+        }
+    }
+
+    private static void loadAndDisplayPastResults() {
+        String fileName = "survey_results.csv";
+        System.out.println("Loading cumulative past survey results...");
+        int totalCokeCount = 0;
+        int totalPepsiCount = 0;
+        int totalNoPreferenceCount = 0;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            String line = reader.readLine(); // Skip the header row
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length == 2) {
+                    try {
+                        String preference = parts[0].trim();
+                        int count = Integer.parseInt(parts[1].trim());
+                        switch (preference) {
+                            case "Coke":
+                                totalCokeCount += count;
+                                break;
+                            case "Pepsi":
+                                totalPepsiCount += count;
+                                break;
+                            case "No Preference":
+                                totalNoPreferenceCount += count;
+                                break;
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println("Skipping invalid line: " + line);
+                    }
+                }
+            }
+            System.out.println("Cumulative Results:");
+            System.out.println("Coke: " + totalCokeCount);
+            System.out.println("Pepsi: " + totalPepsiCount);
+            System.out.println("No Preference: " + totalNoPreferenceCount);
+        } catch (FileNotFoundException e) {
+            System.out.println("No past results found.");
+        } catch (IOException e) {
+            System.out.println("An error occurred while reading the results: " + e.getMessage());
+        }
     }
 }
