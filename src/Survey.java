@@ -5,6 +5,22 @@ public class Survey {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
+        System.out.print("Are you an admin? (yes/no): ");
+        String isAdmin = scanner.nextLine().trim().toLowerCase();
+
+        if (isAdmin.equals("yes")) {
+            if (adminLogin(scanner)) {
+                System.out.println("Admin access granted.");
+                System.out.print("Do you want to delete cumulative results? (yes/no): ");
+                String deleteChoice = scanner.nextLine().trim().toLowerCase();
+                if (deleteChoice.equals("yes")) {
+                    deleteCumulativeResults();
+                }
+            } else {
+                System.out.println("Invalid admin credentials. Exiting admin mode.");
+            }
+        }
+
         System.out.print("Enter the number of users: ");
         int numberOfUsers = getValidInt(scanner);
 
@@ -43,6 +59,26 @@ public class Survey {
         loadAndDisplayPastResults();
 
         scanner.close();
+    }
+
+    private static boolean adminLogin(Scanner scanner) {
+        System.out.print("Enter admin username: ");
+        String username = scanner.nextLine().trim();
+        System.out.print("Enter admin password: ");
+        String password = scanner.nextLine().trim();
+
+        // Replace with your actual admin credentials
+        return username.equals("admin") && password.equals("password123");
+    }
+
+    private static void deleteCumulativeResults() {
+        String fileName = "survey_results.csv";
+        File file = new File(fileName);
+        if (file.exists() && file.delete()) {
+            System.out.println("Cumulative results deleted successfully.");
+        } else {
+            System.out.println("No cumulative results found or unable to delete the file.");
+        }
     }
 
     private static int getUserChoice(Scanner scanner, String option1, String option2) {
